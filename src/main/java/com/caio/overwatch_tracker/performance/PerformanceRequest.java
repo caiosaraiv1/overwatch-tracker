@@ -1,90 +1,28 @@
 package com.caio.overwatch_tracker.performance;
 
-
-import com.caio.overwatch_tracker.hero.Hero;
-import com.caio.overwatch_tracker.match.Match;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
-import jakarta.persistence.UniqueConstraint;
-
 import java.time.Duration;
 
-@Entity
-@Table(
-        name = "performance",
-        uniqueConstraints = {
-                @UniqueConstraint(columnNames = {"match_id", "hero_id", "hero_order"})
-        }
-)
-public class Performance {
+public class PerformanceRequest {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    @ManyToOne
-    @JoinColumn(nullable = false)
-    private Match match;
-
-    @ManyToOne
-    @JoinColumn(nullable = false)
-    private Hero hero;
-
-    @Column(nullable = false)
+    private Long heroId;
     private Integer heroOrder;
-
-    @Column(nullable = false)
     private Duration timePlayed;
-
-    @Column(nullable = false)
     private Integer eliminations;
-
-    @Column(nullable = false)
     private Integer assists;
-
-    @Column(nullable = false)
     private Integer deaths;
-
-    @Column(nullable = false)
     private Integer damageDealt;
-
-    @Column(nullable = false)
     private Integer healingDone;
-
-    @Column(nullable = false)
     private Integer damageMitigated;
 
-    public Performance() {
+    public PerformanceRequest() {
     }
 
-    public Long getId() {
-        return id;
+    public Long getHeroId() {
+        return heroId;
     }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public Match getMatch() {
-        return match;
-    }
-
-    public void setMatch(Match match) {
-        this.match = match;
-    }
-
-    public Hero getHero() {
-        return hero;
-    }
-
-    public void setHero(Hero hero) {
-        this.hero = hero;
+    public void setHeroId(Long heroId) {
+        this.heroId = heroId;
     }
 
     public Integer getHeroOrder() {
