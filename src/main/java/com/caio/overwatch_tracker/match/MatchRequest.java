@@ -1,57 +1,23 @@
 package com.caio.overwatch_tracker.match;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import com.caio.overwatch_tracker.performance.PerformanceRequest;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.List;
 
-@Entity
-public class Match {
+public class MatchRequest {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    @Column(nullable = false)
     private LocalDateTime dateTime;
-
-    @Column(nullable = false)
     private String matchMap;
-
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
     private MapType mapType;
-
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
     private MatchMode matchMode;
-
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
     private Result matchResult;
-
-    @Column(nullable = false)
     private String matchScore;
-
-    @Column(nullable = false)
     private Duration totalDuration;
+    private List<PerformanceRequest> performanceRequestList;
 
-    public Match() {
-
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
+    public MatchRequest() {
     }
 
     public LocalDateTime getDateTime() {
@@ -108,5 +74,13 @@ public class Match {
 
     public void setTotalDuration(Duration totalDuration) {
         this.totalDuration = totalDuration;
+    }
+
+    public List<PerformanceRequest> getPerformanceRequestList() {
+        return performanceRequestList;
+    }
+
+    public void setPerformanceRequestList(List<PerformanceRequest> performanceRequestList) {
+        this.performanceRequestList = performanceRequestList;
     }
 }
