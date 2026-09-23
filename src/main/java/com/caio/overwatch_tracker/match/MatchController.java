@@ -24,7 +24,8 @@ public class MatchController {
     }
 
     @GetMapping("/matches")
-    public List<Match> getMatches() {
-        return matchService.findAll();
+    public ResponseEntity<List<Match>> getMatches() {
+        List<Match> matches = matchService.findAll();
+        return ResponseEntity.ok(matches);
     }
 }
