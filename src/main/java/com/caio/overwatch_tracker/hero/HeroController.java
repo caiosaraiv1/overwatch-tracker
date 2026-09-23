@@ -1,5 +1,6 @@
 package com.caio.overwatch_tracker.hero;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -15,7 +16,7 @@ public class HeroController {
     }
 
     @GetMapping("/heroes")
-    public List<Hero> getHeroes() {
-        return heroRepository.findAll();
+    public ResponseEntity<List<Hero>> getHeroes() {
+        return ResponseEntity.ok(heroRepository.findAll());
     }
 }
