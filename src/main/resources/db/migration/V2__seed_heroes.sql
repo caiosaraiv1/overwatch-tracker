@@ -1,17 +1,60 @@
-INSERT INTO hero (name, role)
-VALUES ('Ana', 'SUPPORT');
+INSERT INTO hero (name, role) VALUES
+-- Tank
+('Mauga', 'TANK'),
+('Orisa', 'TANK'),
+('Roadhog', 'TANK'),
+('Zarya', 'TANK'),
+('D.Va', 'TANK'),
+('Doomfist', 'TANK'),
+('Hazard', 'TANK'),
+('Winston', 'TANK'),
+('Wrecking Ball', 'TANK'),
+('D.Mon', 'TANK'),
+('Domina', 'TANK'),
+('Junker Queen', 'TANK'),
+('Ramattra', 'TANK'),
+('Reinhardt', 'TANK'),
+('Sigma', 'TANK'),
 
-INSERT INTO hero (name, role)
-VALUES ('Juno', 'SUPPORT');
+-- Damage
+('Anran', 'DAMAGE'),
+('Genji', 'DAMAGE'),
+('Reaper', 'DAMAGE'),
+('Shion', 'DAMAGE'),
+('Tracer', 'DAMAGE'),
+('Vendetta', 'DAMAGE'),
+('Venture', 'DAMAGE'),
+('Echo', 'DAMAGE'),
+('Freja', 'DAMAGE'),
+('Pharah', 'DAMAGE'),
+('Sierra', 'DAMAGE'),
+('Sombra', 'DAMAGE'),
+('Ashe', 'DAMAGE'),
+('Cassidy', 'DAMAGE'),
+('Hanzo', 'DAMAGE'),
+('Sojourn', 'DAMAGE'),
+('Widowmaker', 'DAMAGE'),
+('Bastion', 'DAMAGE'),
+('Emre', 'DAMAGE'),
+('Junkrat', 'DAMAGE'),
+('Mei', 'DAMAGE'),
+('Soldier: 76', 'DAMAGE'),
+('Symmetra', 'DAMAGE'),
+('Torbjörn', 'DAMAGE'),
 
-INSERT INTO hero (name, role)
-VALUES ('Junkrat', 'DAMAGE');
-
-INSERT INTO hero (name, role)
-VALUES ('Mei', 'DAMAGE');
-
-INSERT INTO hero (name, role)
-VALUES ('Roadhog', 'TANK');
-
-INSERT INTO hero (name, role)
-VALUES ('Orisa', 'TANK');
+-- Support
+('Kiriko', 'SUPPORT'),
+('Lifeweaver', 'SUPPORT'),
+('Mercy', 'SUPPORT'),
+('Moira', 'SUPPORT'),
+('Brigitte', 'SUPPORT'),
+('Doctrine', 'SUPPORT'),
+('Illari', 'SUPPORT'),
+('Juno', 'SUPPORT'),
+('Mizuki', 'SUPPORT'),
+('Wuyang', 'SUPPORT'),
+('Ana', 'SUPPORT'),
+('Baptiste', 'SUPPORT'),
+('Jetpack Cat', 'SUPPORT'),
+('Lúcio', 'SUPPORT'),
+('Zenyatta', 'SUPPORT');
