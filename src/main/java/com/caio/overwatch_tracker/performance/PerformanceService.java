@@ -6,6 +6,8 @@ import com.caio.overwatch_tracker.match.Match;
 import com.caio.overwatch_tracker.match.MatchRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class PerformanceService {
 
@@ -83,5 +85,12 @@ public class PerformanceService {
         performanceRepository.delete(performance);
     }
 
+    public List<Performance> findByMatchId(Long matchId) {
+        if (!matchRepository.existsById(matchId)) {
+            throw new RuntimeException("Match ID not found.");
+        }
+
+        return performanceRepository.findByMatchId(matchId);
+    }
 
 }

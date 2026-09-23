@@ -3,6 +3,7 @@ package com.caio.overwatch_tracker.performance;
 
 import com.caio.overwatch_tracker.hero.Hero;
 import com.caio.overwatch_tracker.match.Match;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -30,6 +31,7 @@ public class Performance {
 
     @ManyToOne
     @JoinColumn(nullable = false)
+    @JsonIgnore
     private Match match;
 
     @ManyToOne
