@@ -64,4 +64,21 @@ public class MatchService {
     public List<Match> findAll() {
         return matchRepository.findAll();
     }
+
+    public Match updateMatch(Long matchId, MatchRequest request) {
+        Match match = matchRepository.findById(matchId)
+                .orElseThrow(() -> new RuntimeException("Match ID not found."));
+
+        match.setDateTime(request.getDateTime());
+        match.setMatchMap(request.getMatchMap());
+        match.setMapType(request.getMapType());
+        match.setMatchMode(request.getMatchMode());
+        match.setMatchResult(request.getMatchResult());
+        match.setMatchScore(request.getMatchScore());
+        match.setTotalDuration(request.getTotalDuration());
+
+        match = matchRepository.save(match);
+
+        return match;
+    }
 }
