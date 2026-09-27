@@ -1,6 +1,7 @@
 package com.caio.overwatch_tracker.statistic;
 
 import com.caio.overwatch_tracker.hero.Hero;
+import com.caio.overwatch_tracker.hero.HeroNotFoundException;
 import com.caio.overwatch_tracker.hero.HeroRepository;
 import com.caio.overwatch_tracker.match.Result;
 import com.caio.overwatch_tracker.performance.Performance;
@@ -24,7 +25,7 @@ public class StatisticService {
         StatisticResponse statisticResponse = new StatisticResponse();
 
         Hero hero = heroRepository.findById(heroId)
-                .orElseThrow(() -> new RuntimeException("Hero ID not found."));
+                .orElseThrow(() -> new HeroNotFoundException(heroId));
 
         List<Performance> heroPerformances = performanceRepository.findByHeroId(heroId);
 

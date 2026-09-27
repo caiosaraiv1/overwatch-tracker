@@ -1,8 +1,10 @@
 package com.caio.overwatch_tracker.performance;
 
 import com.caio.overwatch_tracker.hero.Hero;
+import com.caio.overwatch_tracker.hero.HeroNotFoundException;
 import com.caio.overwatch_tracker.hero.HeroRepository;
 import com.caio.overwatch_tracker.match.Match;
+import com.caio.overwatch_tracker.match.MatchNotFoundException;
 import com.caio.overwatch_tracker.match.MatchRepository;
 import org.springframework.stereotype.Service;
 
@@ -23,10 +25,10 @@ public class PerformanceService {
 
     public Performance addPerformance(Long matchId, PerformanceRequest request) {
         Match match = matchRepository.findById(matchId)
-                .orElseThrow(() -> new RuntimeException("Match ID not found."));
+                .orElseThrow(() -> new MatchNotFoundException(matchId));
 
         Hero hero = heroRepository.findById(request.getHeroId())
-                .orElseThrow(() -> new RuntimeException("Hero ID not found."));
+                .orElseThrow(() -> new HeroNotFoundException(request.getHeroId()));
 
         Performance performance = new Performance();
 
@@ -49,14 +51,14 @@ public class PerformanceService {
 
     public Performance updatePerformance(Long matchId, Long performanceId, PerformanceRequest request) {
         Performance performance = performanceRepository.findById(performanceId)
-                .orElseThrow(() -> new RuntimeException("Performance ID not found."));
+                .orElseThrow(() -> new PerformanceNotFoundException(performanceId));
 
         if (!performance.getMatch().getId().equals(matchId)) {
-            throw new RuntimeException("Performance " + performanceId + " does not belong to Match " + matchId);
+            throw new PerformanceDoesNotBelongToMatchException(performanceId, matchId);
         }
 
         Hero hero = heroRepository.findById(request.getHeroId())
-                .orElseThrow(() -> new RuntimeException("Hero ID not found."));
+                .orElseThrow(() -> new HeroNotFoundException(request.getHeroId()));
 
         performance.setHero(hero);
 
@@ -76,10 +78,10 @@ public class PerformanceService {
 
     public void deletePerformance(Long matchId, Long performanceId) {
         Performance performance = performanceRepository.findById(performanceId)
-                .orElseThrow(() -> new RuntimeException("Performance ID not found."));
+                .orElseThrow(() -> new PerformanceNotFoundException(performanceId));
 
         if (!performance.getMatch().getId().equals(matchId)) {
-            throw new RuntimeException("Performance " + performanceId + " does not belong to Match " + matchId);
+            throw new PerformanceDoesNotBelongToMatchException(performanceId, matchId);
         }
 
         performanceRepository.delete(performance);
@@ -87,7 +89,7 @@ public class PerformanceService {
 
     public List<Performance> findByMatchId(Long matchId) {
         if (!matchRepository.existsById(matchId)) {
-            throw new RuntimeException("Match ID not found.");
+            throw new MatchNotFoundException(matchId);
         }
 
         return performanceRepository.findByMatchId(matchId);

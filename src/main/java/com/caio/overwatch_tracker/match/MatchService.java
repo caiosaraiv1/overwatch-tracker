@@ -1,6 +1,7 @@
 package com.caio.overwatch_tracker.match;
 
 import com.caio.overwatch_tracker.hero.Hero;
+import com.caio.overwatch_tracker.hero.HeroNotFoundException;
 import com.caio.overwatch_tracker.hero.HeroRepository;
 import com.caio.overwatch_tracker.performance.Performance;
 import com.caio.overwatch_tracker.performance.PerformanceRepository;
@@ -39,7 +40,7 @@ public class MatchService {
 
         for (PerformanceRequest pr : request.getPerformanceRequestList()) {
             Hero hero = heroRepository.findById(pr.getHeroId())
-                    .orElseThrow(() -> new RuntimeException("Hero ID not found."));
+                    .orElseThrow(() -> new HeroNotFoundException(pr.getHeroId()));
 
             Performance performance = new Performance();
 
@@ -67,7 +68,7 @@ public class MatchService {
 
     public Match updateMatch(Long matchId, MatchRequest request) {
         Match match = matchRepository.findById(matchId)
-                .orElseThrow(() -> new RuntimeException("Match ID not found."));
+                .orElseThrow(() -> new MatchNotFoundException(matchId));
 
         match.setDateTime(request.getDateTime());
         match.setMatchMap(request.getMatchMap());
