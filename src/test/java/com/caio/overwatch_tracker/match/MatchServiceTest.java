@@ -22,6 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -70,6 +71,51 @@ public class MatchServiceTest {
         assertThrows(HeroNotFoundException.class, () -> matchService.createMatch(matchRequest));
 
         verify(performanceRepository, never()).save(any());
+    }
+
+    @Test
+    public void createMatch_shouldCreateMatchWithoutPerformances_whenListIsEmpty() {
+        MatchRequest matchRequest = createMatchRequest(List.of());
+
+        when(matchRepository.save(any(Match.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
+
+        Match result = matchService.createMatch(matchRequest);
+
+        assertMatchFieldsEqualRequest(matchRequest, result);
+
+        verify(matchRepository).save(any(Match.class));
+        verify(heroRepository, never()).findById(any());
+        verify(performanceRepository, never()).save(any());
+    }
+
+    @Test
+    public void createMatch_shouldSaveAllPerformances_whenListHasMany() {
+        Hero hero1 = createHero(10L);
+        Hero hero2 = createHero(11L);
+        Hero hero3 = createHero(12L);
+
+        MatchRequest matchRequest = createMatchRequest(List.of(
+                createPerformanceRequest(hero1.getId()),
+                createPerformanceRequest(hero2.getId()),
+                createPerformanceRequest(hero3.getId())
+        ));
+
+        when(heroRepository.findById(hero1.getId())).thenReturn(Optional.of(hero1));
+        when(heroRepository.findById(hero2.getId())).thenReturn(Optional.of(hero2));
+        when(heroRepository.findById(hero3.getId())).thenReturn(Optional.of(hero3));
+        when(matchRepository.save(any(Match.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
+
+        Match result = matchService.createMatch(matchRequest);
+
+        assertMatchFieldsEqualRequest(matchRequest, result);
+
+        verify(matchRepository).save(any(Match.class));
+        verify(heroRepository).findById(hero1.getId());
+        verify(heroRepository).findById(hero2.getId());
+        verify(heroRepository).findById(hero3.getId());
+        verify(performanceRepository, times(3)).save(any());
     }
 
     // ===================== updateMatch =====================
