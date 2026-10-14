@@ -42,13 +42,8 @@ public class PerformanceServiceTest {
 
     @Test
     public void deletePerformance_shouldDeletePerformance() {
-        Match match = new Match();
-        match.setId(1L);
-
-        Performance performance = new Performance();
-        performance.setId(2L);
-
-        performance.setMatch(match);
+        Match match = createMatch(1L);
+        Performance performance = createPerformance(2L, match);
 
         when(performanceRepository.findById(performance.getId())).thenReturn(Optional.of(performance));
 
@@ -58,32 +53,28 @@ public class PerformanceServiceTest {
     }
 
     @Test
-    public void deletePerformance_shouldThrowPerformanceNotFoundException() {
-        Long performanceId = 1L;
-        Long matchId = 2L;
+    public void deletePerformance_shouldThrowPerformanceNotFound() {
+        Long matchId = 1L;
+        Long performanceId = 2L;
 
         when(performanceRepository.findById(performanceId)).thenReturn(Optional.empty());
 
-        assertThrows(PerformanceNotFoundException.class, () -> performanceService.deletePerformance(matchId, performanceId));
+        assertThrows(PerformanceNotFoundException.class,
+                () -> performanceService.deletePerformance(matchId, performanceId));
 
         verify(performanceRepository, never()).delete(any());
     }
 
     @Test
-    public void deletePerformance_shouldThrowPerformanceDoesNotBelongToMatchException() {
-        Match match = new Match();
-        match.setId(1L);
-
-        Performance performance = new Performance();
-        performance.setId(2L);
-
-        performance.setMatch(match);
-
+    public void deletePerformance_shouldThrowPerformanceDoesNotBelongToMatch() {
+        Match match = createMatch(1L);
+        Performance performance = createPerformance(2L, match);
         Long incorrectMatchId = 3L;
 
         when(performanceRepository.findById(performance.getId())).thenReturn(Optional.of(performance));
 
-        assertThrows(PerformanceDoesNotBelongToMatchException.class, () -> performanceService.deletePerformance(incorrectMatchId, performance.getId()));
+        assertThrows(PerformanceDoesNotBelongToMatchException.class,
+                () -> performanceService.deletePerformance(incorrectMatchId, performance.getId()));
 
         verify(performanceRepository, never()).delete(any());
     }
@@ -91,141 +82,78 @@ public class PerformanceServiceTest {
     // ===================== updatePerformance =====================
 
     @Test
-    public void updatePerformance_shouldThrowPerformanceNotFound() {
-        Match match = new Match();
-        match.setId(1L);
-
-        Performance performance = new Performance();
-        performance.setId(2L);
-
-        performance.setMatch(match);
-
-        when(performanceRepository.findById(performance.getId())).thenReturn(Optional.empty());
-
-        PerformanceRequest performanceRequest = createPerformanceRequest(1L);
-
-        assertThrows(PerformanceNotFoundException.class, () -> performanceService.updatePerformance(match.getId(), performance.getId(), performanceRequest));
-
-        verify(performanceRepository, never()).save(any());
-    }
-
-    @Test
-    public void updatePerformance_shouldThrowPerformanceDoesNotBelongToMatchException() {
-        Match match = new Match();
-        match.setId(1L);
-
-        Performance performance = new Performance();
-        performance.setId(2L);
-
-        performance.setMatch(match);
-
-        Long incorrectMatchId = 3L;
-
-        when(performanceRepository.findById(performance.getId())).thenReturn(Optional.of(performance));
-
-        PerformanceRequest performanceRequest = createPerformanceRequest(1L);
-
-        assertThrows(PerformanceDoesNotBelongToMatchException.class, () -> performanceService.updatePerformance(incorrectMatchId, performance.getId(), performanceRequest));
-
-        verify(performanceRepository, never()).save(any());
-    }
-
-    @Test
-    public void updatePerformance_shouldThrowHeroNotFoundException() {
-        Match match = new Match();
-        match.setId(1L);
-
-        Performance performance = new Performance();
-        performance.setId(2L);
-
-        performance.setMatch(match);
-
-        Hero hero = new Hero();
-        hero.setId(3L);
-
-        when(performanceRepository.findById(performance.getId())).thenReturn(Optional.of(performance));
-        when(heroRepository.findById(hero.getId())).thenReturn(Optional.empty());
-
-        PerformanceRequest performanceRequest = createPerformanceRequest(hero.getId());
-
-        assertThrows(HeroNotFoundException.class, () -> performanceService.updatePerformance(match.getId(), performance.getId(), performanceRequest));
-
-        verify(performanceRepository, never()).save(any());
-    }
-
-    @Test
     public void updatePerformance_shouldUpdatePerformance() {
-        Match match = new Match();
-        match.setId(1L);
+        Match match = createMatch(1L);
+        Hero oldHero = createHero(10L);
+        Hero newHero = createHero(11L);
 
-        Hero oldHero = new Hero();
-        oldHero.setId(3L);
-
-        Hero newHero = new Hero();
-        newHero.setId(4L);
-
-        Performance performance = new Performance();
-        performance.setId(2L);
-
-        performance.setMatch(match);
+        Performance performance = createPerformance(2L, match);
         performance.setHero(oldHero);
-
-        when(performanceRepository.findById(performance.getId())).thenReturn(Optional.of(performance));
-        when(heroRepository.findById(newHero.getId())).thenReturn(Optional.of(newHero));
 
         PerformanceRequest performanceRequest = createPerformanceRequest(newHero.getId());
 
+        when(performanceRepository.findById(performance.getId())).thenReturn(Optional.of(performance));
+        when(heroRepository.findById(newHero.getId())).thenReturn(Optional.of(newHero));
         when(performanceRepository.save(performance)).thenReturn(performance);
 
         Performance result = performanceService.updatePerformance(match.getId(), performance.getId(), performanceRequest);
 
-        verify(performanceRepository).save(performance);
-
         assertEquals(newHero, result.getHero());
+
+        verify(performanceRepository).save(performance);
+    }
+
+    @Test
+    public void updatePerformance_shouldThrowPerformanceNotFound() {
+        Long matchId = 1L;
+        Long performanceId = 2L;
+        PerformanceRequest performanceRequest = createPerformanceRequest(10L);
+
+        when(performanceRepository.findById(performanceId)).thenReturn(Optional.empty());
+
+        assertThrows(PerformanceNotFoundException.class,
+                () -> performanceService.updatePerformance(matchId, performanceId, performanceRequest));
+
+        verify(performanceRepository, never()).save(any());
+    }
+
+    @Test
+    public void updatePerformance_shouldThrowPerformanceDoesNotBelongToMatch() {
+        Match match = createMatch(1L);
+        Performance performance = createPerformance(2L, match);
+        Long incorrectMatchId = 3L;
+        PerformanceRequest performanceRequest = createPerformanceRequest(10L);
+
+        when(performanceRepository.findById(performance.getId())).thenReturn(Optional.of(performance));
+
+        assertThrows(PerformanceDoesNotBelongToMatchException.class,
+                () -> performanceService.updatePerformance(incorrectMatchId, performance.getId(), performanceRequest));
+
+        verify(performanceRepository, never()).save(any());
+    }
+
+    @Test
+    public void updatePerformance_shouldThrowHeroNotFound() {
+        Match match = createMatch(1L);
+        Performance performance = createPerformance(2L, match);
+        Long heroId = 10L;
+        PerformanceRequest performanceRequest = createPerformanceRequest(heroId);
+
+        when(performanceRepository.findById(performance.getId())).thenReturn(Optional.of(performance));
+        when(heroRepository.findById(heroId)).thenReturn(Optional.empty());
+
+        assertThrows(HeroNotFoundException.class,
+                () -> performanceService.updatePerformance(match.getId(), performance.getId(), performanceRequest));
+
+        verify(performanceRepository, never()).save(any());
     }
 
     // ===================== addPerformance =====================
 
     @Test
-    public void addPerformance_shouldThrowMatchNotFoundException() {
-        Match match = new Match();
-        match.setId(1L);
-
-        PerformanceRequest performanceRequest = createPerformanceRequest(2L);
-
-        when(matchRepository.findById(match.getId())).thenReturn(Optional.empty());
-
-        assertThrows(MatchNotFoundException.class, () -> performanceService.addPerformance(match.getId(), performanceRequest));
-
-        verify(performanceRepository, never()).save(any());
-    }
-
-    @Test
-    public void addPerformance_shouldThrowHeroNotFoundException() {
-        Match match = new Match();
-        match.setId(1L);
-
-        Hero hero = new Hero();
-        hero.setId(2L);
-
-        PerformanceRequest performanceRequest = createPerformanceRequest(hero.getId());
-
-        when(matchRepository.findById(match.getId())).thenReturn(Optional.of(match));
-        when(heroRepository.findById(hero.getId())).thenReturn(Optional.empty());
-
-        assertThrows(HeroNotFoundException.class, () -> performanceService.addPerformance(match.getId(), performanceRequest));
-
-        verify(performanceRepository, never()).save(any());
-    }
-
-    @Test
     public void addPerformance_shouldAddPerformance() {
-        Match match = new Match();
-        match.setId(1L);
-
-        Hero hero = new Hero();
-        hero.setId(2L);
-
+        Match match = createMatch(1L);
+        Hero hero = createHero(10L);
         PerformanceRequest performanceRequest = createPerformanceRequest(hero.getId());
 
         when(matchRepository.findById(match.getId())).thenReturn(Optional.of(match));
@@ -242,34 +170,47 @@ public class PerformanceServiceTest {
         assertEquals(performanceRequest.getDeaths(), result.getDeaths());
         assertEquals(performanceRequest.getTimePlayed(), result.getTimePlayed());
 
-        verify(performanceRepository).save(any(Performance.class));
         verify(matchRepository).findById(match.getId());
         verify(heroRepository).findById(hero.getId());
+        verify(performanceRepository).save(any(Performance.class));
+    }
+
+    @Test
+    public void addPerformance_shouldThrowMatchNotFound() {
+        Long matchId = 1L;
+        PerformanceRequest performanceRequest = createPerformanceRequest(10L);
+
+        when(matchRepository.findById(matchId)).thenReturn(Optional.empty());
+
+        assertThrows(MatchNotFoundException.class,
+                () -> performanceService.addPerformance(matchId, performanceRequest));
+
+        verify(performanceRepository, never()).save(any());
+    }
+
+    @Test
+    public void addPerformance_shouldThrowHeroNotFound() {
+        Match match = createMatch(1L);
+        Long heroId = 10L;
+        PerformanceRequest performanceRequest = createPerformanceRequest(heroId);
+
+        when(matchRepository.findById(match.getId())).thenReturn(Optional.of(match));
+        when(heroRepository.findById(heroId)).thenReturn(Optional.empty());
+
+        assertThrows(HeroNotFoundException.class,
+                () -> performanceService.addPerformance(match.getId(), performanceRequest));
+
+        verify(performanceRepository, never()).save(any());
     }
 
     // ===================== findByMatchId =====================
 
     @Test
-    public void findByMatchId_shouldThrowMatchNotFoundException() {
-        Match match = new Match();
-        match.setId(1L);
-
-        when(matchRepository.existsById(match.getId())).thenReturn(false);
-
-        assertThrows(MatchNotFoundException.class, () -> performanceService.findByMatchId(match.getId()));
-
-        verify(performanceRepository, never()).findByMatchId(any());
-    }
-
-    @Test
-    public void findByMatchId_shouldFindByMatchId() {
-        Match match = new Match();
-        match.setId(1L);
-
-        Performance performance = new Performance();
-        performance.setMatch(match);
-
-        List<Performance> performances = List.of(performance);
+    public void findByMatchId_shouldReturnPerformancesOfMatch() {
+        Match match = createMatch(1L);
+        List<Performance> performances = List.of(
+                createPerformance(2L, match),
+                createPerformance(3L, match));
 
         when(matchRepository.existsById(match.getId())).thenReturn(true);
         when(performanceRepository.findByMatchId(match.getId())).thenReturn(performances);
@@ -281,7 +222,38 @@ public class PerformanceServiceTest {
         verify(performanceRepository).findByMatchId(match.getId());
     }
 
+    @Test
+    public void findByMatchId_shouldThrowMatchNotFound() {
+        Long matchId = 1L;
+
+        when(matchRepository.existsById(matchId)).thenReturn(false);
+
+        assertThrows(MatchNotFoundException.class,
+                () -> performanceService.findByMatchId(matchId));
+
+        verify(performanceRepository, never()).findByMatchId(any());
+    }
+
     // ===================== métodos auxiliares =====================
+
+    private Match createMatch(Long matchId) {
+        Match match = new Match();
+        match.setId(matchId);
+        return match;
+    }
+
+    private Hero createHero(Long heroId) {
+        Hero hero = new Hero();
+        hero.setId(heroId);
+        return hero;
+    }
+
+    private Performance createPerformance(Long performanceId, Match match) {
+        Performance performance = new Performance();
+        performance.setId(performanceId);
+        performance.setMatch(match);
+        return performance;
+    }
 
     private PerformanceRequest createPerformanceRequest(Long heroId) {
         PerformanceRequest performanceRequest = new PerformanceRequest();
@@ -294,7 +266,6 @@ public class PerformanceServiceTest {
         performanceRequest.setDamageDealt(3456);
         performanceRequest.setHealingDone(8412);
         performanceRequest.setDamageMitigated(0);
-
         return performanceRequest;
     }
 }
