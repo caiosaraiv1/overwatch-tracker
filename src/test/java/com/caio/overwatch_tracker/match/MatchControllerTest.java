@@ -140,6 +140,8 @@ public class MatchControllerTest {
                 .andExpect(jsonPath("$.path").value("/matches/10"));
     }
 
+    // ===================== métodos auxiliares =====================
+
     private Match createMatch(Long id, MapType mapType, Result result) {
         Match match = new Match();
         match.setId(id);
