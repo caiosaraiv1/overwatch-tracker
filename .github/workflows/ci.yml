@@ -1,0 +1,36 @@
+name: CI
+
+# Quando rodar: a cada push (em qualquer branch) e a cada pull request
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Baixa o código do repositório na máquina do GitHub
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      # 2. Instala o Java (e guarda as dependências do Maven em cache,
+      #    pra não baixar tudo de novo a cada execução)
+      - name: Set up JDK 21
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+
+      # 3. Roda os testes (o JaCoCo gera o relatório junto)
+      - name: Run tests
+        run: ./mvnw -B test
+
+      # 4. Guarda o relatório do JaCoCo pra você baixar na página da execução
+      - name: Upload coverage report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: jacoco-report
+          path: target/site/jacoco/
