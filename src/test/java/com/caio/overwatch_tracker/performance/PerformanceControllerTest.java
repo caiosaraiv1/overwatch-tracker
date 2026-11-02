@@ -18,9 +18,12 @@ import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -150,6 +153,78 @@ public class PerformanceControllerTest {
                 .andExpect(jsonPath("$.error").value("Not Found"))
                 .andExpect(jsonPath("$.message").value("Match ID 20 not found."))
                 .andExpect(jsonPath("$.path").value("/matches/20/performances"));
+    }
+
+    // ===================== updatePerformance =====================
+
+    @Test
+    public void updatePerformance_shouldReturn200WithUpdatedPerformance() throws Exception {
+        Hero hero = createHero(10L, "Ana", Role.SUPPORT);
+        Match match = createMatch(30L, MapType.ESCORT, Result.VICTORY);
+        Performance performance = createPerformance(2L, match, hero, 10);
+
+        when(performanceService.updatePerformance(eq(match.getId()), eq(performance.getId()), any(PerformanceRequest.class)))
+                .thenReturn(performance);
+
+        mockMvc.perform(patch("/matches/{id}/performances/{performanceId}", match.getId(), performance.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(VALID_PERFORMANCE_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(performance.getId()))
+                .andExpect(jsonPath("$.eliminations").value(10))
+                .andExpect(jsonPath("$.hero.id").value(hero.getId()))
+                .andExpect(jsonPath("$.hero.name").value(hero.getName()))
+                .andExpect(jsonPath("$.hero.role").value("SUPPORT"));
+
+        verify(performanceService).updatePerformance(eq(match.getId()), eq(performance.getId()), any(PerformanceRequest.class));
+    }
+
+    @Test
+    public void updatePerformance_shouldReturn400_whenPerformanceDoesNotBelongToMatch() throws Exception {
+        Long matchId = 30L;
+        Long performanceId = 2L;
+
+        when(performanceService.updatePerformance(eq(matchId), eq(performanceId), any(PerformanceRequest.class)))
+                .thenThrow(new PerformanceDoesNotBelongToMatchException(performanceId, matchId));
+
+        mockMvc.perform(patch("/matches/{id}/performances/{performanceId}", matchId, performanceId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(VALID_PERFORMANCE_JSON))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.dateTime").exists())
+                .andExpect(jsonPath("$.statusCode").value(400))
+                .andExpect(jsonPath("$.error").value("Bad Request"))
+                .andExpect(jsonPath("$.message").value("Performance 2 does not belong to Match 30"))
+                .andExpect(jsonPath("$.path").value("/matches/30/performances/2"));
+    }
+
+    // ===================== deletePerformance =====================
+
+    @Test
+    public void deletePerformance_shouldReturn204() throws Exception {
+        Long matchId = 30L;
+        Long performanceId = 2L;
+
+        mockMvc.perform(delete("/matches/{id}/performances/{performanceId}", matchId, performanceId))
+                .andExpect(status().isNoContent());
+
+        verify(performanceService).deletePerformance(matchId, performanceId);
+    }
+
+    @Test
+    public void deletePerformance_shouldReturn404_whenPerformanceNotFound() throws Exception {
+        Long matchId = 30L;
+        Long performanceId = 2L;
+
+        doThrow(new PerformanceNotFoundException(performanceId)).when(performanceService).deletePerformance(matchId, performanceId);
+
+        mockMvc.perform(delete("/matches/{id}/performances/{performanceId}", matchId, performanceId))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.dateTime").exists())
+                .andExpect(jsonPath("$.statusCode").value(404))
+                .andExpect(jsonPath("$.error").value("Not Found"))
+                .andExpect(jsonPath("$.message").value("Performance ID 2 not found."))
+                .andExpect(jsonPath("$.path").value("/matches/30/performances/2"));
     }
 
     // ===================== métodos auxiliares =====================
