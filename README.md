@@ -8,18 +8,21 @@ This is a personal learning project, built to practice Spring Boot and backend e
 
 ## Tech Stack
 
-- **Java 21**
+- **Java 17**
 - **Spring Boot 4** (Web MVC, Data JPA)
 - **H2** (in-memory database)
 - **Flyway** (database migrations)
 - **JUnit 5 + Mockito** (unit tests)
+- **MockMvc** (controller tests)
+- **JaCoCo** (test coverage)
+- **GitHub Actions** (CI)
 - **Maven**
 
 ## Getting Started
 
 ### Prerequisites
 
-- JDK 21+
+- JDK 17+
 
 ### Running the application
 
@@ -48,6 +51,8 @@ To inspect the database while the app is running, open `http://localhost:8080/h2
 ```bash
 ./mvnw test
 ```
+
+The coverage report is generated at `target/site/jacoco/index.html`.
 
 ## Data Model
 
@@ -130,6 +135,19 @@ Errors return a consistent JSON body:
 | `404 Not Found` | The hero, match or performance doesn't exist |
 | `400 Bad Request` | The performance doesn't belong to the match in the URL |
 
+## Testing
+
+The project has **42 automated tests** with **100% instruction and branch coverage**, measured with JaCoCo. The application entry point (`main`) is excluded from the report, since it only starts Spring and holds no logic.
+
+Tests are split by layer, each one mocking the layer below it:
+
+| Layer | Tools | What is verified |
+|---|---|---|
+| Services | JUnit 5 + Mockito | Business rules, calculations and error cases, with repositories mocked |
+| Controllers | `@WebMvcTest` + MockMvc | Routing, HTTP status codes, JSON request/response and exception-to-HTTP mapping, with services mocked |
+
+Every push and pull request runs the full test suite on GitHub Actions, and the coverage report is uploaded as a build artifact.
+
 ## Project Structure
 
 The code is organized by domain rather than by layer:
@@ -143,12 +161,17 @@ src/main/java/com/caio/overwatch_tracker/
 └── exception/     # Global exception handler and error response
 
 src/main/resources/db/migration/   # Flyway migrations (schema + hero seed)
+src/test/java/com/caio/overwatch_tracker/   # Service and controller tests, mirroring the main packages
+.github/workflows/ci.yml           # CI pipeline
 ```
 
 ## Roadmap
 
 - [ ] Migrate from H2 to PostgreSQL
 - [ ] Input validation with Bean Validation
-- [ ] Controller tests with MockMvc
-- [ ] Full unit test coverage of the service layer, measured with JaCoCo
+- [x] Unit tests for the service layer
+- [x] Controller tests with MockMvc
+- [x] Test coverage with JaCoCo (100% instructions and branches)
+- [x] Continuous integration with GitHub Actions
+- [ ] Integration tests with a real database
 - [ ] Search heroes by name (`GET /heroes?name=Ana`)
