@@ -73,6 +73,11 @@
 				<groupId>org.jacoco</groupId>
 				<artifactId>jacoco-maven-plugin</artifactId>
 				<version>0.8.13</version>
+				<configuration>
+					<excludes>
+						<exclude>com/caio/overwatch_tracker/OverwatchTrackerApplication.class</exclude>
+					</excludes>
+				</configuration>
 				<executions>
 					<execution>
 						<id>prepare-agent</id>
