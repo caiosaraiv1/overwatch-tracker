@@ -10,12 +10,4 @@ public class PerformanceDoesNotBelongToMatchException extends RuntimeException {
         this.performanceId = performanceId;
         this.matchId = matchId;
     }
-
-    public Long getPerformanceId() {
-        return performanceId;
-    }
-
-    public Long getMatchId() {
-        return matchId;
-    }
 }

@@ -8,8 +8,4 @@ public class HeroNotFoundException extends RuntimeException {
         super("Hero ID " + heroId + " not found.");
         this.heroId = heroId;
     }
-
-    public Long getHeroId() {
-        return heroId;
-    }
 }

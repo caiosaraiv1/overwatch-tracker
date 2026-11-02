@@ -26,12 +26,6 @@ public class Hero {
 
     }
 
-    public Hero(Long id, String name, Role role) {
-        this.id = id;
-        this.name = name;
-        this.role = role;
-    }
-
     public Long getId() {
         return id;
     }

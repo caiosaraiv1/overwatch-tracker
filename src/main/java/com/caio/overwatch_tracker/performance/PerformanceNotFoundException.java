@@ -8,8 +8,4 @@ public class PerformanceNotFoundException extends RuntimeException {
         super("Performance ID " + performanceId + " not found.");
         this.performanceId = performanceId;
     }
-
-    public Long getPerformanceId() {
-        return performanceId;
-    }
 }

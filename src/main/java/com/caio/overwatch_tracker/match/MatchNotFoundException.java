@@ -8,8 +8,4 @@ public class MatchNotFoundException extends RuntimeException{
         super("Match ID " + matchId + " not found.");
         this.matchId = matchId;
     }
-
-    public Long getMatchId() {
-        return matchId;
-    }
 }
