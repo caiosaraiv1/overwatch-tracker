@@ -1,0 +1,29 @@
+meta {
+  name: Search heroes by name
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrl}}/heroes?name=ana
+  body: none
+  auth: none
+}
+
+params:query {
+  name: ana
+}
+
+assert {
+  res.status: eq 200
+}
+
+docs {
+  Partial, case-insensitive search by hero name.
+  
+  Other cases worth trying:
+  - `a` -> several heroes
+  - `xyz` -> 200 with []
+  - Empty `name` -> every hero (accepted behavior)
+  - `dva` / `lucio` -> [] (punctuation and accents are not ignored)
+}

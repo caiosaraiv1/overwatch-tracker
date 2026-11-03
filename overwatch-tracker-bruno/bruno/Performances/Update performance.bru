@@ -1,0 +1,43 @@
+meta {
+  name: Update performance
+  type: http
+  seq: 3
+}
+
+patch {
+  url: {{baseUrl}}/matches/:matchId/performances/:performanceId
+  body: json
+  auth: none
+}
+
+params:path {
+  matchId: 1
+  performanceId: 1
+}
+
+body:json {
+  {
+    "heroId": 50,
+    "heroOrder": 1,
+    "timePlayed": "PT12M",
+    "eliminations": 10,
+    "assists": 20,
+    "deaths": 2,
+    "damageDealt": 4500,
+    "healingDone": 10200,
+    "damageMitigated": 0
+  }
+}
+
+assert {
+  res.status: eq 200
+}
+
+docs {
+  Updates a performance of a match.
+  
+  Other cases worth trying:
+  - A performance from another match -> 400 (does not belong to match)
+  - `performanceId` 999 -> 404
+  - `heroId` 999 -> 404
+}

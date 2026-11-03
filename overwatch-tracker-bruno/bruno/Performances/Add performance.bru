@@ -1,0 +1,42 @@
+meta {
+  name: Add performance
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/matches/:matchId/performances
+  body: json
+  auth: none
+}
+
+params:path {
+  matchId: 1
+}
+
+body:json {
+  {
+    "heroId": 4,
+    "heroOrder": 2,
+    "timePlayed": "PT5M",
+    "eliminations": 6,
+    "assists": 4,
+    "deaths": 2,
+    "damageDealt": 3100,
+    "healingDone": 0,
+    "damageMitigated": 5200
+  }
+}
+
+assert {
+  res.status: eq 201
+}
+
+docs {
+  Adds a performance to an existing match (hero 4 = Zarya),
+  e.g. after swapping heroes mid-game.
+  
+  Other cases worth trying:
+  - `matchId` 999 -> 404 (match not found)
+  - `heroId` 999 -> 404 (hero not found)
+}

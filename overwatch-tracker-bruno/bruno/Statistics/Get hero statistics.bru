@@ -1,0 +1,28 @@
+meta {
+  name: Get hero statistics
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/statistics/heroes/:heroId
+  body: none
+  auth: none
+}
+
+params:path {
+  heroId: 50
+}
+
+assert {
+  res.status: eq 200
+}
+
+docs {
+  Aggregated statistics for a hero (50 = Ana).
+  `winRate` is a proportion between 0 and 1 (0.5 = 50%).
+  
+  Other cases worth trying:
+  - A hero you never played -> 200 with everything zeroed
+  - `heroId` 999 -> 404
+}

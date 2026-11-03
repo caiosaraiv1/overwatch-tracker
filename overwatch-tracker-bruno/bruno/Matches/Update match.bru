@@ -1,0 +1,40 @@
+meta {
+  name: Update match
+  type: http
+  seq: 3
+}
+
+put {
+  url: {{baseUrl}}/matches/:matchId
+  body: json
+  auth: none
+}
+
+params:path {
+  matchId: 1
+}
+
+body:json {
+  {
+    "dateTime": "2026-11-03T20:00:00",
+    "matchMap": "Kings Row",
+    "mapType": "HYBRID",
+    "matchMode": "COMPETITIVE",
+    "matchResult": "DEFEAT",
+    "matchScore": "2 vs 3",
+    "totalDuration": "PT14M",
+    "performanceRequestList": []
+  }
+}
+
+assert {
+  res.status: eq 200
+}
+
+docs {
+  Replaces the match data (PUT). Performances are managed through
+  their own endpoints, not here.
+  
+  Other cases worth trying:
+  - `matchId` 999 -> 404
+}

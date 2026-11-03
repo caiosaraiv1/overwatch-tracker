@@ -1,0 +1,6 @@
+{
+  "version": "1",
+  "name": "Overwatch Tracker",
+  "type": "collection",
+  "ignore": ["node_modules", ".git"]
+}

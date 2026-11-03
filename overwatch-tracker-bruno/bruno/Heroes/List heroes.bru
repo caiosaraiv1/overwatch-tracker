@@ -1,0 +1,19 @@
+meta {
+  name: List heroes
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/heroes
+  body: none
+  auth: none
+}
+
+assert {
+  res.status: eq 200
+}
+
+docs {
+  Lists the full hero roster seeded by Flyway.
+}

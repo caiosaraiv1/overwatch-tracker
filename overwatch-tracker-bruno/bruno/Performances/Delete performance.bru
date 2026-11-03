@@ -1,0 +1,28 @@
+meta {
+  name: Delete performance
+  type: http
+  seq: 4
+}
+
+delete {
+  url: {{baseUrl}}/matches/:matchId/performances/:performanceId
+  body: none
+  auth: none
+}
+
+params:path {
+  matchId: 1
+  performanceId: 2
+}
+
+assert {
+  res.status: eq 204
+}
+
+docs {
+  Deletes a performance from a match.
+  
+  Other cases worth trying:
+  - Same ID again -> 404 (already deleted)
+  - A performance from another match -> 400
+}

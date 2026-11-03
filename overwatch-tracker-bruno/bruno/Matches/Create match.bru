@@ -1,0 +1,54 @@
+meta {
+  name: Create match
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/matches
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "dateTime": "2026-11-03T20:00:00",
+    "matchMap": "Kings Row",
+    "mapType": "HYBRID",
+    "matchMode": "COMPETITIVE",
+    "matchResult": "VICTORY",
+    "matchScore": "3 vs 1",
+    "totalDuration": "PT12M",
+    "performanceRequestList": [
+      {
+        "heroId": 50,
+        "heroOrder": 1,
+        "timePlayed": "PT12M",
+        "eliminations": 8,
+        "assists": 18,
+        "deaths": 3,
+        "damageDealt": 4200,
+        "healingDone": 9500,
+        "damageMitigated": 0
+      }
+    ]
+  }
+}
+
+assert {
+  res.status: eq 201
+}
+
+docs {
+  Creates a match together with its performances (hero 50 = Ana).
+  It's atomic: if any hero doesn't exist, nothing is saved.
+  
+  Other cases worth trying:
+  - Empty `performanceRequestList` -> 201, match without performances
+  - `heroId` 999 -> 404 (and no match is saved)
+  
+  Accepted values:
+  - mapType: ESCORT, HYBRID, CONTROL, PUSH, FLASHPOINT
+  - matchMode: QUICK_PLAY, COMPETITIVE
+  - matchResult: VICTORY, DEFEAT, DRAW
+}

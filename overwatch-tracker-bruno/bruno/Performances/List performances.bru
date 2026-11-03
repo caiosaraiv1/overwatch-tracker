@@ -1,0 +1,27 @@
+meta {
+  name: List performances
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrl}}/matches/:matchId/performances
+  body: none
+  auth: none
+}
+
+params:path {
+  matchId: 1
+}
+
+assert {
+  res.status: eq 200
+}
+
+docs {
+  Lists the performances of a match.
+  
+  Other cases worth trying:
+  - A match without performances -> 200 with []
+  - `matchId` 999 -> 404
+}
