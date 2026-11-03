@@ -1,17 +1,48 @@
 package com.caio.overwatch_tracker.performance;
 
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.PositiveOrZero;
+import org.hibernate.validator.constraints.time.DurationMin;
+
 import java.time.Duration;
 
 public class PerformanceRequest {
 
+    @NotNull
+    @Positive
     private Long heroId;
+
+    @NotNull
+    @Positive
     private Integer heroOrder;
+
+    @NotNull
+    @DurationMin(seconds = 1)
     private Duration timePlayed;
+
+    @NotNull
+    @PositiveOrZero
     private Integer eliminations;
+
+    @NotNull
+    @PositiveOrZero
     private Integer assists;
+
+    @NotNull
+    @PositiveOrZero
     private Integer deaths;
+
+    @NotNull
+    @PositiveOrZero
     private Integer damageDealt;
+
+    @NotNull
+    @PositiveOrZero
     private Integer healingDone;
+
+    @NotNull
+    @PositiveOrZero
     private Integer damageMitigated;
 
     public PerformanceRequest() {

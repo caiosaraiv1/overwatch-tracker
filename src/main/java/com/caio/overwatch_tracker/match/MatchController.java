@@ -1,5 +1,6 @@
 package com.caio.overwatch_tracker.match;
 
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -20,7 +21,7 @@ public class MatchController {
     }
 
     @PostMapping("/matches")
-    public ResponseEntity<Match> createMatch(@RequestBody MatchRequest matchRequest) {
+    public ResponseEntity<Match> createMatch(@Valid @RequestBody MatchRequest matchRequest) {
         Match save = matchService.createMatch(matchRequest);
         return ResponseEntity.status(201).body(save);
     }
@@ -32,7 +33,7 @@ public class MatchController {
     }
 
     @PutMapping("/matches/{id}")
-    public ResponseEntity<Match> updateMatch(@PathVariable("id") Long matchId, @RequestBody MatchRequest request) {
+    public ResponseEntity<Match> updateMatch(@PathVariable("id") Long matchId, @Valid @RequestBody MatchRequest request) {
         Match save = matchService.updateMatch(matchId, request);
         return ResponseEntity.status(200).body(save);
     }

@@ -1,6 +1,12 @@
 package com.caio.overwatch_tracker.match;
 
 import com.caio.overwatch_tracker.performance.PerformanceRequest;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.PastOrPresent;
+import jakarta.validation.constraints.Pattern;
+import org.hibernate.validator.constraints.time.DurationMin;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -8,13 +14,32 @@ import java.util.List;
 
 public class MatchRequest {
 
+    @NotNull
+    @PastOrPresent
     private LocalDateTime dateTime;
+
+    @NotBlank
     private String matchMap;
+
+    @NotNull
     private MapType mapType;
+
+    @NotNull
     private MatchMode matchMode;
+
+    @NotNull
     private Result matchResult;
+
+    @NotBlank
+    @Pattern(regexp = "^\\d+ vs \\d+$")
     private String matchScore;
+
+    @NotNull
+    @DurationMin(seconds = 1)
     private Duration totalDuration;
+
+    @NotNull
+    @Valid
     private List<PerformanceRequest> performanceRequestList;
 
     public MatchRequest() {

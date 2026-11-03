@@ -1,5 +1,6 @@
 package com.caio.overwatch_tracker.performance;
 
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,7 +22,7 @@ public class PerformanceController {
     }
 
     @PostMapping("/matches/{id}/performances")
-    public ResponseEntity<Performance> addPerformance(@RequestBody PerformanceRequest performanceRequest, @PathVariable("id") Long matchId) {
+    public ResponseEntity<Performance> addPerformance(@Valid @RequestBody PerformanceRequest performanceRequest, @PathVariable("id") Long matchId) {
         Performance save = performanceService.addPerformance(matchId, performanceRequest);
         return ResponseEntity.status(201).body(save);
     }
@@ -33,7 +34,7 @@ public class PerformanceController {
     }
 
     @PatchMapping("/matches/{id}/performances/{performanceId}")
-    public ResponseEntity<Performance> updatePerformance(@RequestBody PerformanceRequest performanceRequest, @PathVariable("id") Long matchId, @PathVariable("performanceId") Long performanceId) {
+    public ResponseEntity<Performance> updatePerformance(@Valid @RequestBody PerformanceRequest performanceRequest, @PathVariable("id") Long matchId, @PathVariable("performanceId") Long performanceId) {
         Performance save = performanceService.updatePerformance(matchId, performanceId, performanceRequest);
         return ResponseEntity.status(200).body(save);
     }
