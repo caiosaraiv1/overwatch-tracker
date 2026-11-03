@@ -2,6 +2,7 @@ package com.caio.overwatch_tracker.hero;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -18,5 +19,10 @@ public class HeroController {
     @GetMapping("/heroes")
     public ResponseEntity<List<Hero>> getHeroes() {
         return ResponseEntity.ok(heroRepository.findAll());
+    }
+
+    @GetMapping(value = "/heroes", params = "name")
+    public ResponseEntity<List<Hero>> getHeroesByName(@RequestParam String name) {
+        return ResponseEntity.ok(heroRepository.findByNameContainingIgnoreCase(name));
     }
 }
