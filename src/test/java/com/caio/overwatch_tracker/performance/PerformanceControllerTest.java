@@ -16,9 +16,11 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
 
+import static org.hamcrest.Matchers.containsString;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -49,6 +51,33 @@ public class PerformanceControllerTest {
           "healingDone": 8412,
           "damageMitigated": 0
         }
+        """;
+
+    private static final String NEGATIVE_ELIMINATIONS = """
+        {
+          "heroId": 10,
+          "heroOrder": 1,
+          "timePlayed": "PT8M",
+          "eliminations": -7,
+          "assists": 15,
+          "deaths": 3,
+          "damageDealt": 3456,
+          "healingDone": 8412,
+          "damageMitigated": 0
+        }
+        """;
+
+    private static final String MALFORMED_JSON  = """
+        {
+          "heroId": 10,
+          "heroOrder": 1,
+          "timePlayed": "PT8M",
+          "eliminations": 7,
+          "assists": 15,
+          "deaths": 3,
+          "damageDealt": 3456,
+          "healingDone": 8412,
+          "damageMitigated": 0
         """;
 
     // ===================== addPerformance =====================
@@ -110,6 +139,40 @@ public class PerformanceControllerTest {
                 .andExpect(jsonPath("$.error").value("Not Found"))
                 .andExpect(jsonPath("$.message").value("Hero ID 10 not found."))
                 .andExpect(jsonPath("$.path").value("/matches/20/performances"));
+    }
+
+    @Test
+    public void addPerformance_shouldReturn400_whenEliminationsIsNegative() throws Exception {
+        Long matchId = 20L;
+
+        mockMvc.perform(post("/matches/{id}/performances", matchId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(NEGATIVE_ELIMINATIONS))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.dateTime").exists())
+                .andExpect(jsonPath("$.statusCode").value(400))
+                .andExpect(jsonPath("$.error").value("Bad Request"))
+                .andExpect(jsonPath("$.message").value(containsString("eliminations")))
+                .andExpect(jsonPath("$.path").value("/matches/20/performances"));
+
+        verify(performanceService, never()).addPerformance(any(), any());
+    }
+
+    @Test
+    public void addPerformance_shouldReturn400_whenJsonIsMalformed() throws Exception {
+        Long matchId = 20L;
+
+        mockMvc.perform(post("/matches/{id}/performances", matchId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(MALFORMED_JSON))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.dateTime").exists())
+                .andExpect(jsonPath("$.statusCode").value(400))
+                .andExpect(jsonPath("$.error").value("Bad Request"))
+                .andExpect(jsonPath("$.message").value("Malformed JSON request"))
+                .andExpect(jsonPath("$.path").value("/matches/20/performances"));
+
+        verify(performanceService, never()).addPerformance(any(), any());
     }
 
     // ===================== getPerformancesByMatchId =====================

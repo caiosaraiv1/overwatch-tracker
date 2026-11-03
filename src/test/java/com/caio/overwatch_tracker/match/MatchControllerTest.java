@@ -8,11 +8,13 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
-import javax.print.attribute.standard.Media;
 import java.util.List;
 
+import static org.hamcrest.Matchers.containsString;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -43,7 +45,33 @@ public class MatchControllerTest {
         }
         """;
 
-    // ===================== createMatch (Post) =====================
+    private static final String MATCH_MAP_BLANK = """
+        {
+          "dateTime": "2026-09-30T15:40:00",
+          "matchMap": "",
+          "mapType": "ESCORT",
+          "matchMode": "QUICK_PLAY",
+          "matchResult": "VICTORY",
+          "matchScore": "3 vs 0",
+          "totalDuration": "PT8M",
+          "performanceRequestList": []
+        }
+        """;
+
+    private static final String UNKNOWN_MAP_TYPE = """
+        {
+          "dateTime": "2026-09-30T15:40:00",
+          "matchMap": "Rialto",
+          "mapType": "potato",
+          "matchMode": "QUICK_PLAY",
+          "matchResult": "VICTORY",
+          "matchScore": "3 vs 0",
+          "totalDuration": "PT8M",
+          "performanceRequestList": []
+        }
+        """;
+
+    // ===================== createMatch =====================
 
     @Test
     public void createMatch_shouldReturn201WithMatch() throws Exception {
@@ -73,6 +101,36 @@ public class MatchControllerTest {
                 .andExpect(jsonPath("$.error").value("Not Found"))
                 .andExpect(jsonPath("$.message").value("Hero ID 10 not found."))
                 .andExpect(jsonPath("$.path").value("/matches"));
+    }
+
+    @Test
+    public void createMatch_shouldReturn400_whenMatchMapIsBlank() throws Exception {
+        mockMvc.perform(post("/matches")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(MATCH_MAP_BLANK))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.dateTime").exists())
+                .andExpect(jsonPath("$.statusCode").value(400))
+                .andExpect(jsonPath("$.error").value("Bad Request"))
+                .andExpect(jsonPath("$.message").value(containsString("matchMap")))
+                .andExpect(jsonPath("$.path").value("/matches"));
+
+        verify(matchService, never()).createMatch(any());;
+    }
+
+    @Test
+    public void createMatch_shouldReturn400_whenMapTypeIsUnknown() throws Exception {
+        mockMvc.perform(post("/matches")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(UNKNOWN_MAP_TYPE))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.dateTime").exists())
+                .andExpect(jsonPath("$.statusCode").value(400))
+                .andExpect(jsonPath("$.error").value("Bad Request"))
+                .andExpect(jsonPath("$.message").value("Malformed JSON request"))
+                .andExpect(jsonPath("$.path").value("/matches"));
+
+        verify(matchService, never()).createMatch(any());;
     }
 
     // ===================== getMatches =====================
