@@ -69,6 +69,7 @@ Match 1 ──── N Performance N ──── 1 Hero
 | Method | Endpoint | Description | Success |
 |---|---|---|---|
 | `GET` | `/heroes` | List all heroes | `200` |
+| `GET` | `/heroes?name={name}` | Search heroes by name (partial, case-insensitive) | `200` |
 | `POST` | `/matches` | Create a match, optionally with its performances | `201` |
 | `GET` | `/matches` | List all matches | `200` |
 | `PUT` | `/matches/{id}` | Update a match | `200` |
@@ -174,4 +175,4 @@ src/test/java/com/caio/overwatch_tracker/   # Service and controller tests, mirr
 - [x] Test coverage with JaCoCo (100% instructions and branches)
 - [x] Continuous integration with GitHub Actions
 - [ ] Integration tests with a real database
-- [ ] Search heroes by name (`GET /heroes?name=Ana`)
+- [x] Search heroes by name (`GET /heroes?name=Ana`)
