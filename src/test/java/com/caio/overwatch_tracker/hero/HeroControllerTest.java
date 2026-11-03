@@ -9,6 +9,8 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
 
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -33,7 +35,7 @@ public class HeroControllerTest {
         when(heroRepository.findAll()).thenReturn(List.of(hero1, hero2));
 
         mockMvc.perform(get("/heroes")
-                .accept(MediaType.APPLICATION_JSON))
+                        .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(2))
                 .andExpect(jsonPath("$[0].id").value(hero1.getId()))
@@ -49,9 +51,45 @@ public class HeroControllerTest {
         when(heroRepository.findAll()).thenReturn(List.of());
 
         mockMvc.perform(get("/heroes")
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(0));
+    }
+
+    // ===================== getHeroesByName =====================
+
+    @Test
+    public void getHeroesByName_shouldReturn200WithHeroes_whenNameMatches() throws Exception {
+        Hero hero = createHero(10L, "Ana", Role.SUPPORT);
+        String nameQuery = "ana";
+
+        when(heroRepository.findByNameContainingIgnoreCase(nameQuery)).thenReturn(List.of(hero));
+
+        mockMvc.perform(get("/heroes").param("name", nameQuery)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(1))
+                .andExpect(jsonPath("$[0].id").value(hero.getId()))
+                .andExpect(jsonPath("$[0].name").value(hero.getName()))
+                .andExpect(jsonPath("$[0].role").value("SUPPORT"));
+
+        verify(heroRepository).findByNameContainingIgnoreCase(nameQuery);
+        verify(heroRepository, never()).findAll();
+    }
+
+    @Test
+    public void getHeroesByName_shouldReturn200WithEmptyList_whenNoHeroMatchesName() throws Exception {
+        String nameQuery = "xyz";
+
+        when(heroRepository.findByNameContainingIgnoreCase(nameQuery)).thenReturn(List.of());
+
+        mockMvc.perform(get("/heroes").param("name", nameQuery)
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(0));
+
+        verify(heroRepository).findByNameContainingIgnoreCase(nameQuery);
+        verify(heroRepository, never()).findAll();
     }
 
     // ===================== métodos auxiliares =====================
