@@ -9,7 +9,7 @@ This is a personal learning project, built to practice Spring Boot and backend e
 ## Tech Stack
 
 - **Java 17**
-- **Spring Boot 4** (Web MVC, Data JPA)
+- **Spring Boot 4** (Web MVC, Data JPA, Validation)
 - **H2** (in-memory database)
 - **Flyway** (database migrations)
 - **JUnit 5 + Mockito** (unit tests)
@@ -117,6 +117,21 @@ Accepted values:
 - `matchResult`: `VICTORY`, `DEFEAT`, `DRAW`
 - `totalDuration` / `timePlayed`: ISO-8601 durations (`PT9M54S` = 9 min 54 s)
 
+### Validation rules
+
+Request bodies are validated before reaching the business logic:
+
+| Field | Rule |
+|---|---|
+| `dateTime` | Required, cannot be in the future |
+| `matchMap` | Required, cannot be blank |
+| `mapType`, `matchMode`, `matchResult` | Required, must be one of the accepted values |
+| `matchScore` | Required, format `<number> vs <number>` (e.g. `3 vs 1`) |
+| `totalDuration`, `timePlayed` | Required, at least 1 second |
+| `performanceRequestList` | Required (can be empty); every item is validated too |
+| `heroId`, `heroOrder` | Required, positive |
+| `eliminations`, `assists`, `deaths`, `damageDealt`, `healingDone`, `damageMitigated` | Required, zero or positive |
+
 ### Error responses
 
 Errors return a consistent JSON body:
@@ -134,18 +149,34 @@ Errors return a consistent JSON body:
 | Status | When |
 |---|---|
 | `404 Not Found` | The hero, match or performance doesn't exist |
+| `400 Bad Request` | The request body fails validation (e.g. blank map, negative stats, future date) |
+| `400 Bad Request` | The request body is malformed JSON or has an unknown enum value |
 | `400 Bad Request` | The performance doesn't belong to the match in the URL |
+
+Validation errors list every invalid field in `message`, separated by `;`:
+
+```json
+{
+  "dateTime": "2026-11-03T17:09:09.451",
+  "statusCode": 400,
+  "error": "Bad Request",
+  "message": "matchMap: must not be blank; performanceRequestList[0].eliminations: must be greater than or equal to 0",
+  "path": "/matches"
+}
+```
 
 ## Testing
 
-The project has **42 automated tests** with **100% instruction and branch coverage**, measured with JaCoCo. The application entry point (`main`) is excluded from the report, since it only starts Spring and holds no logic.
+The project has **48 automated tests** with **100% instruction and branch coverage**, measured with JaCoCo. The application entry point (`main`) is excluded from the report, since it only starts Spring and holds no logic.
 
 Tests are split by layer, each one mocking the layer below it:
 
 | Layer | Tools | What is verified |
 |---|---|---|
 | Services | JUnit 5 + Mockito | Business rules, calculations and error cases, with repositories mocked |
-| Controllers | `@WebMvcTest` + MockMvc | Routing, HTTP status codes, JSON request/response and exception-to-HTTP mapping, with services mocked |
+| Controllers | `@WebMvcTest` + MockMvc | Routing, HTTP status codes, JSON request/response, request validation and exception-to-HTTP mapping, with services mocked |
+
+For manual testing, a [Bruno](https://www.usebruno.com/) collection with every endpoint is available in `bruno/`. Open it in Bruno and select the `Local` environment.
 
 Every push and pull request runs the full test suite on GitHub Actions, and the coverage report is uploaded as a build artifact.
 
@@ -164,12 +195,13 @@ src/main/java/com/caio/overwatch_tracker/
 src/main/resources/db/migration/   # Flyway migrations (schema + hero seed)
 src/test/java/com/caio/overwatch_tracker/   # Service and controller tests, mirroring the main packages
 .github/workflows/ci.yml           # CI pipeline
+bruno/                             # Bruno collection for manual API testing
 ```
 
 ## Roadmap
 
 - [ ] Migrate from H2 to PostgreSQL
-- [ ] Input validation with Bean Validation
+- [x] Input validation with Bean Validation
 - [x] Unit tests for the service layer
 - [x] Controller tests with MockMvc
 - [x] Test coverage with JaCoCo (100% instructions and branches)
