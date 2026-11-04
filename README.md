@@ -10,10 +10,11 @@ This is a personal learning project, built to practice Spring Boot and backend e
 
 - **Java 17**
 - **Spring Boot 4** (Web MVC, Data JPA, Validation)
-- **H2** (in-memory database)
+- **PostgreSQL 17** (database, via Docker Compose)
 - **Flyway** (database migrations)
 - **JUnit 5 + Mockito** (unit tests)
 - **MockMvc** (controller tests)
+- **H2** (in-memory database for tests)
 - **JaCoCo** (test coverage)
 - **GitHub Actions** (CI)
 - **Maven**
@@ -23,34 +24,51 @@ This is a personal learning project, built to practice Spring Boot and backend e
 ### Prerequisites
 
 - JDK 17+
+- Docker (with Docker Compose)
 
 ### Running the application
 
+Start the database, then the API:
+
 ```bash
+docker compose up -d
 ./mvnw spring-boot:run
 ```
 
 The API will be available at `http://localhost:8080`.
 
-On startup, Flyway creates the schema and seeds the database with the full hero roster.
+On startup, Flyway creates the schema and seeds the database with the full hero roster. Data is stored in a Docker volume, so it survives restarts.
 
-> **Note:** the database is in-memory, so all recorded matches are lost when the application stops.
+To reset the database to a clean state:
 
-### H2 Console
+```bash
+docker compose down -v
+docker compose up -d
+```
 
-To inspect the database while the app is running, open `http://localhost:8080/h2-console` and connect with:
+### Configuration
 
-| Field | Value |
+The database connection works out of the box with the development defaults. Each setting can be overridden with an environment variable:
+
+| Variable | Default |
 |---|---|
-| JDBC URL | `jdbc:h2:mem:testdb` |
-| User | `sa` |
-| Password | *(empty)* |
+| `DB_URL` | `jdbc:postgresql://localhost:5432/overwatch_tracker` |
+| `DB_USERNAME` | `overwatch` |
+| `DB_PASSWORD` | `overwatch` |
+
+### Accessing the database
+
+```bash
+docker compose exec postgres psql -U overwatch -d overwatch_tracker
+```
 
 ### Running the tests
 
 ```bash
 ./mvnw test
 ```
+
+Tests don't need Docker: they run against an in-memory H2 database, configured in `src/test/resources/application.properties`.
 
 The coverage report is generated at `target/site/jacoco/index.html`.
 
@@ -196,15 +214,16 @@ src/main/resources/db/migration/   # Flyway migrations (schema + hero seed)
 src/test/java/com/caio/overwatch_tracker/   # Service and controller tests, mirroring the main packages
 .github/workflows/ci.yml           # CI pipeline
 bruno/                             # Bruno collection for manual API testing
+docker-compose.yml                 # Local PostgreSQL
 ```
 
 ## Roadmap
 
-- [ ] Migrate from H2 to PostgreSQL
+- [x] Migrate from H2 to PostgreSQL
 - [x] Input validation with Bean Validation
 - [x] Unit tests for the service layer
 - [x] Controller tests with MockMvc
 - [x] Test coverage with JaCoCo (100% instructions and branches)
 - [x] Continuous integration with GitHub Actions
-- [ ] Integration tests with a real database
+- [ ] Integration tests with a real database (Testcontainers)
 - [x] Search heroes by name (`GET /heroes?name=Ana`)
