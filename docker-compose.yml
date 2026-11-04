@@ -1,0 +1,20 @@
+services:
+  postgres:
+    image: postgres:17
+    container_name: overwatch-tracker-db
+    environment:
+      POSTGRES_DB: overwatch_tracker
+      POSTGRES_USER: ${DB_USERNAME:-overwatch}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-overwatch}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U overwatch -d overwatch_tracker"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres-data:
