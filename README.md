@@ -14,7 +14,7 @@ This is a personal learning project, built to practice Spring Boot and backend e
 - **Flyway** (database migrations)
 - **JUnit 5 + Mockito** (unit tests)
 - **MockMvc** (controller tests)
-- **H2** (in-memory database for tests)
+- **Testcontainers** (integration tests against a real PostgreSQL)
 - **JaCoCo** (test coverage)
 - **GitHub Actions** (CI)
 - **Maven**
@@ -68,7 +68,7 @@ docker compose exec postgres psql -U overwatch -d overwatch_tracker
 ./mvnw test
 ```
 
-Tests don't need Docker: they run against an in-memory H2 database, configured in `src/test/resources/application.properties`.
+Docker must be running: integration tests start a throwaway PostgreSQL container with Testcontainers. The development database from `docker compose` is not touched.
 
 The coverage report is generated at `target/site/jacoco/index.html`.
 
@@ -185,14 +185,15 @@ Validation errors list every invalid field in `message`, separated by `;`:
 
 ## Testing
 
-The project has **48 automated tests** with **100% instruction and branch coverage**, measured with JaCoCo. The application entry point (`main`) is excluded from the report, since it only starts Spring and holds no logic.
+The project has **53 automated tests** with **100% instruction and branch coverage**, measured with JaCoCo. The application entry point (`main`) is excluded from the report, since it only starts Spring and holds no logic.
 
-Tests are split by layer, each one mocking the layer below it:
+Tests are split by layer:
 
 | Layer | Tools | What is verified |
 |---|---|---|
 | Services | JUnit 5 + Mockito | Business rules, calculations and error cases, with repositories mocked |
 | Controllers | `@WebMvcTest` + MockMvc | Routing, HTTP status codes, JSON request/response, request validation and exception-to-HTTP mapping, with services mocked |
+| Integration | Testcontainers + PostgreSQL 17 | Repository queries, Flyway migrations, transaction rollback and the full request-to-database flow, with nothing mocked |
 
 For manual testing, a [Bruno](https://www.usebruno.com/) collection with every endpoint is available in `bruno/`. Open it in Bruno and select the `Local` environment.
 
@@ -211,7 +212,7 @@ src/main/java/com/caio/overwatch_tracker/
 └── exception/     # Global exception handler and error response
 
 src/main/resources/db/migration/   # Flyway migrations (schema + hero seed)
-src/test/java/com/caio/overwatch_tracker/   # Service and controller tests, mirroring the main packages
+src/test/java/com/caio/overwatch_tracker/   # Unit, controller and integration tests, mirroring the main packages
 .github/workflows/ci.yml           # CI pipeline
 bruno/                             # Bruno collection for manual API testing
 docker-compose.yml                 # Local PostgreSQL
@@ -225,5 +226,5 @@ docker-compose.yml                 # Local PostgreSQL
 - [x] Controller tests with MockMvc
 - [x] Test coverage with JaCoCo (100% instructions and branches)
 - [x] Continuous integration with GitHub Actions
-- [ ] Integration tests with a real database (Testcontainers)
+- [x] Integration tests with a real database (Testcontainers)
 - [x] Search heroes by name (`GET /heroes?name=Ana`)
