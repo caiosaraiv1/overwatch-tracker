@@ -1,5 +1,6 @@
 package com.caio.overwatch_tracker.performance;
 
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -21,6 +22,7 @@ public class PerformanceController {
         this.performanceService = performanceService;
     }
 
+    @ApiResponse(responseCode = "201", description = "Performance created")
     @PostMapping("/matches/{id}/performances")
     public ResponseEntity<Performance> addPerformance(@Valid @RequestBody PerformanceRequest performanceRequest, @PathVariable("id") Long matchId) {
         Performance save = performanceService.addPerformance(matchId, performanceRequest);
@@ -39,6 +41,7 @@ public class PerformanceController {
         return ResponseEntity.status(200).body(save);
     }
 
+    @ApiResponse(responseCode = "204", description = "Performance deleted")
     @DeleteMapping("/matches/{id}/performances/{performanceId}")
     public ResponseEntity<Void> deletePerformance(@PathVariable("id") Long matchId, @PathVariable("performanceId") Long performanceId) {
         performanceService.deletePerformance(matchId, performanceId);

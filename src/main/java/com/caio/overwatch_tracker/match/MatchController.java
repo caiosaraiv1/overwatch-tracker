@@ -1,5 +1,6 @@
 package com.caio.overwatch_tracker.match;
 
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,6 +21,7 @@ public class MatchController {
         this.matchService = matchService;
     }
 
+    @ApiResponse(responseCode = "201", description = "Match created")
     @PostMapping("/matches")
     public ResponseEntity<Match> createMatch(@Valid @RequestBody MatchRequest matchRequest) {
         Match save = matchService.createMatch(matchRequest);
