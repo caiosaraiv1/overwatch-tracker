@@ -9,6 +9,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -25,10 +26,10 @@ public class HeroControllerTest {
     @MockitoBean
     private HeroRepository heroRepository;
 
-    // ===================== getHeroes =====================
+    // ===================== getHeroes (sem filtro) =====================
 
     @Test
-    public void getHeroes_shouldReturnHeroes_whenHeroesExist() throws Exception {
+    public void getHeroes_shouldReturn200WithAllHeroes_whenNameIsNotProvided() throws Exception {
         Hero hero1 = createHero(10L, "Ana", Role.SUPPORT);
         Hero hero2 = createHero(11L, "Zarya", Role.TANK);
 
@@ -44,22 +45,28 @@ public class HeroControllerTest {
                 .andExpect(jsonPath("$[1].id").value(hero2.getId()))
                 .andExpect(jsonPath("$[1].name").value(hero2.getName()))
                 .andExpect(jsonPath("$[1].role").value("TANK"));
+
+        verify(heroRepository).findAll();
+        verify(heroRepository, never()).findByNameContainingIgnoreCase(any());
     }
 
     @Test
-    public void getHeroes_shouldReturnEmptyList_whenNoHeroesExist() throws Exception {
+    public void getHeroes_shouldReturn200WithEmptyList_whenNoHeroesExist() throws Exception {
         when(heroRepository.findAll()).thenReturn(List.of());
 
         mockMvc.perform(get("/heroes")
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(0));
+
+        verify(heroRepository).findAll();
+        verify(heroRepository, never()).findByNameContainingIgnoreCase(any());
     }
 
-    // ===================== getHeroesByName =====================
+    // ===================== getHeroes (com filtro por nome) =====================
 
     @Test
-    public void getHeroesByName_shouldReturn200WithHeroes_whenNameMatches() throws Exception {
+    public void getHeroes_shouldReturn200WithMatchingHeroes_whenNameMatches() throws Exception {
         Hero hero = createHero(10L, "Ana", Role.SUPPORT);
         String nameQuery = "ana";
 
@@ -78,13 +85,13 @@ public class HeroControllerTest {
     }
 
     @Test
-    public void getHeroesByName_shouldReturn200WithEmptyList_whenNoHeroMatchesName() throws Exception {
+    public void getHeroes_shouldReturn200WithEmptyList_whenNoHeroMatchesName() throws Exception {
         String nameQuery = "xyz";
 
         when(heroRepository.findByNameContainingIgnoreCase(nameQuery)).thenReturn(List.of());
 
         mockMvc.perform(get("/heroes").param("name", nameQuery)
-                .accept(MediaType.APPLICATION_JSON))
+                        .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(0));
 

@@ -17,12 +17,10 @@ public class HeroController {
     }
 
     @GetMapping("/heroes")
-    public ResponseEntity<List<Hero>> getHeroes() {
-        return ResponseEntity.ok(heroRepository.findAll());
-    }
-
-    @GetMapping(value = "/heroes", params = "name")
-    public ResponseEntity<List<Hero>> getHeroesByName(@RequestParam String name) {
+    public ResponseEntity<List<Hero>> getHeroes(@RequestParam(required = false) String name) {
+        if (name == null) {
+            return ResponseEntity.ok(heroRepository.findAll());
+        }
         return ResponseEntity.ok(heroRepository.findByNameContainingIgnoreCase(name));
     }
 }
